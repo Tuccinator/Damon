@@ -34,6 +34,8 @@ class Lexer
 	 */
 	private $_exceptions;
 
+	private $_recursiveCount = 0;
+
 	/**
 	 * Set the exceptions array
 	 */
@@ -42,7 +44,9 @@ class Lexer
 		$this->_exceptions = [
 			'input',
 			'hr',
-			'br'
+			'br',
+			'meta',
+			'link'
 		];
 	}
 
@@ -55,9 +59,9 @@ class Lexer
 	{
 		$firstSequence = explode($this->_startDelimiter, $html);
 		$secondSequence = $this->_secondSequence($firstSequence);
-		$elements = $this->_getElements($secondSequence);
+		$this->_tokens = $this->_getElements($secondSequence);
 
-		$this->_tokens = $elements;
+		$this->_tokens = $this->_sortElements();
 
 		return $this->_tokens;
 	}
@@ -163,11 +167,61 @@ class Lexer
 	 * @var array $elements All hitherto formatted tokens
 	 * @return array Newly formatted list of tokens with parents/children
 	 */
-	private function _sortElements($elements)
+	private function _sortElements()
 	{
 		$newElements = [];
+		
+		$this->_recursiveParent(0);
 
-		return $newElements;
+		return $this->_tokens;
+	}
+
+	/**
+	 * Recursive function for iterating through each element to sort
+	 * @var integer $elementId	Key of element in tokens array
+	 * @var array 	$openTags	All of the open tags that have yet to be closed i.e. <div>....</div>
+	 * @return array The new tokens array
+	 */
+	private function _recursiveParent($elementId, $openTags = array())
+	{
+		// When end of token array is reach, quit and return tokens
+		if($elementId == count($this->_tokens) - 1):
+			return $this->_tokens;
+		endif;
+
+		// set current element
+		$element = $this->_tokens[$elementId];
+		
+		// if there are open tags, proceed
+		if(count($openTags) > 0):
+
+			// check that last open tag is same as current element
+			if($element['tag'] === '/' . $openTags[0]['tag']):
+
+				// Remove the last open tag from all other tags
+				$lastTag = array_shift($openTags);
+
+				// Set the parent to the ID of last open tag
+				$this->_tokens[$lastTag['id']]['parent'] = $this->_tokens[$openTags[0]['id']]['id'];
+			else:
+
+				// When the tag is an inline element, automatically set the parent to last open tag
+				if(in_array($element['tag'], $this->_exceptions)) {
+					$this->_tokens[$elementId]['parent'] = $this->_tokens[$openTags[0]['id']]['id'];
+				}
+
+				// If the current element isn't inline and it is not a closing tag, add to beginning of open tag array
+				if(strstr($element['tag'], '/') == false && !in_array($element['tag'], $this->_exceptions)) {
+					array_unshift($openTags, ['tag' => $element['tag'], 'id' => $elementId]);
+				}
+			endif;
+		else:
+			// add the initial open tag to array
+			$openTags[] = ['tag' => $element['tag'], 'id' => $elementId];
+		endif;
+
+		// move onto the next element
+		$this->_recursiveParent($elementId + 1, $openTags);
 	}
 
 	/**
@@ -176,4 +230,32 @@ class Lexer
 	 */
 	public function compileTokens(){}
 
+	/**
+	 * Retrieve the inner text in between tags
+	 * INCOMPLETE
+	 */
+	public function getInnerText(){}
+
+	/**
+	 * Set the new inner text for a certain tag. Must compile tokens to see any changes
+	 * @var string $tag Tag to be used for setting new text. i.e. '#name.first'
+	 * INCOMPLETE
+	 */
+	public function setInnerText($tag){}
+
+	/**
+	 * Get the parent of said element
+	 * @var string Tag
+	 * @return array Whole parent with attributes
+	 * INCOMPLETE
+	 */
+	public function getParent($tag){}
+
+	/**
+	 * Get all children of an element
+	 * @var string Tag
+	 * @return array Array of all children
+	 * INCOMPLETE
+	 */
+	public function getChildren($tag){}
 } 
