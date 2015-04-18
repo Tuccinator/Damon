@@ -7,8 +7,19 @@ $html = $http->connect()->getRawHtml();
 
 $lexer = new \Damon\Lexer;
 
+$parents = <<<'HTML'
+	<div id="firstParent">
+		<p id="paragraph">Hi</p>
+	</div>
+	<div id="secondParent">
+		<p id="paragraph">Bye</p>
+	</div>
+HTML;
+
 echo '<pre>';
 
-print_r($lexer->parse($html));
+print_r($lexer->parse($parents));
+
+print_r($lexer->getParent('p'));
 
 echo '</pre>';

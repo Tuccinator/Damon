@@ -34,6 +34,10 @@ class Lexer
 	 */
 	private $_exceptions;
 
+	/**
+	 * Number of the times the recursive function to find parent has iterated
+	 * @var int
+	 */
 	private $_recursiveCount = 0;
 
 	/**
@@ -55,7 +59,7 @@ class Lexer
 	 * @var string $html The HTML source extracted from a remote website
 	 * @return array Array of all extracted tokens
 	 */
-	public function parse($html = '<div class="bob" id="id2"><p id="firstParagraph"></div>')
+	public function parse($html = '<div class="bob" id="id2"><p id="firstParagraph"></p></div>')
 	{
 		$firstSequence = explode($this->_startDelimiter, $html);
 		$secondSequence = $this->_secondSequence($firstSequence);
@@ -201,8 +205,10 @@ class Lexer
 				// Remove the last open tag from all other tags
 				$lastTag = array_shift($openTags);
 
-				// Set the parent to the ID of last open tag
-				$this->_tokens[$lastTag['id']]['parent'] = $this->_tokens[$openTags[0]['id']]['id'];
+				if(count($openTags) > 0):
+					// Set the parent to the ID of last open tag
+					$this->_tokens[$lastTag['id']]['parent'] = $this->_tokens[$openTags[0]['id']]['id'];
+				endif;
 			else:
 
 				// When the tag is an inline element, automatically set the parent to last open tag
@@ -247,9 +253,31 @@ class Lexer
 	 * Get the parent of said element
 	 * @var string Tag
 	 * @return array Whole parent with attributes
-	 * INCOMPLETE
+	 * INCOMPLETE, just need to add with attributes and change to complete string
 	 */
-	public function getParent($tag){}
+	public function getParent($tag)
+	{
+		$parents = [];
+
+		foreach($this->_tokens as $token) {
+			if($token['tag'] == $tag) {
+				foreach($this->_tokens as $second) {
+					if($second['id'] == $token['parent']) {
+						array_push($parents, $second);
+					}
+				}
+			}
+		}
+
+		if(count($parents) == 1) {
+			return $parents[0];
+		}
+		return $parents;
+	}
+
+	public static function parentSearch($key)
+	{
+	}
 
 	/**
 	 * Get all children of an element
