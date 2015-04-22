@@ -291,5 +291,37 @@ class Lexer
 	 * @return array Array of all children
 	 * INCOMPLETE
 	 */
-	public function getChildren($tag){}
+	public function getChildren($tag, $attributes = null)
+	{
+		$children = [];
+
+		foreach($this->_tokens as $token) {
+			$error = false;
+
+			if($token['tag'] == $tag) {
+				if(!is_null($attributes)) {
+					foreach($attributes as $attribute => $value) {
+						if($token['attributes'][$attribute] != $value) {
+							$error = true;
+						}
+					}
+				}
+
+				if(!$error) {
+					foreach($this->_tokens as $secondToken) {
+						if(isset($secondToken['parent'])) {
+							if($secondToken['parent'] == $token['id']) {
+								array_push($children, $secondToken);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if(count($children) == 1) {
+			return $children[0];
+		}
+		return $children;
+	}
 } 

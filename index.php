@@ -20,6 +20,6 @@ echo '<pre>';
 
 $lexer->parse($parents);
 
-print_r($lexer->getParent('p', ['id' => 'paragraph1']));
+print_r($lexer->getChildren('div', ['id' => 'firstParent']));
 
 echo '</pre>';
