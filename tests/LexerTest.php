@@ -32,6 +32,25 @@ class LexerTest extends PHPUnit_Framework_TestCase
 
 		$this->assertEquals($tokens[1]['parent'], $tokens[0]['id']);
 	}
+
+	/**
+	 * Ensure that the getParent method returns the correct parent
+	 */
+	public function testGetParent()
+	{
+		$lexer = new \Damon\Lexer();
+		$parents = '
+			<div id="firstParent">
+				<p id="paragraph1">Hi</p>
+			</div>
+			<div id="secondParent">
+				<p id="paragraph2">Bye</p>
+			</div>';
+		
+		$tokens = $lexer->parse($parents);
+
+		$this->assertEquals($lexer->getParent('p', ['id' => 'paragraph1'])['attributes']['id'], 'firstParent');
+	}
 }
 
 ?>

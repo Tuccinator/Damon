@@ -9,17 +9,17 @@ $lexer = new \Damon\Lexer;
 
 $parents = <<<'HTML'
 	<div id="firstParent">
-		<p id="paragraph">Hi</p>
+		<p id="paragraph1">Hi</p>
 	</div>
 	<div id="secondParent">
-		<p id="paragraph">Bye</p>
+		<p id="paragraph2">Bye</p>
 	</div>
 HTML;
 
 echo '<pre>';
 
-print_r($lexer->parse($parents));
+$lexer->parse($parents);
 
-print_r($lexer->getParent('p'));
+print_r($lexer->getParent('p', ['id' => 'paragraph1']));
 
 echo '</pre>';

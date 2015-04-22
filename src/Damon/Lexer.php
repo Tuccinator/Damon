@@ -251,19 +251,29 @@ class Lexer
 
 	/**
 	 * Get the parent of said element
-	 * @var string Tag
+	 * @var string  $tag 		Tag
+	 * @var array 	$attributes Attributes to search with tag
 	 * @return array Whole parent with attributes
-	 * INCOMPLETE, just need to add with attributes and change to complete string
 	 */
-	public function getParent($tag)
+	public function getParent($tag, $attributes = null)
 	{
 		$parents = [];
 
 		foreach($this->_tokens as $token) {
 			if($token['tag'] == $tag) {
-				foreach($this->_tokens as $second) {
-					if($second['id'] == $token['parent']) {
-						array_push($parents, $second);
+				$error = false;
+				if(!is_null($attributes)) {
+					foreach($attributes as $attribute => $value) {
+						if($token['attributes'][$attribute] != $value) {
+							$error = true;
+						}
+					}
+				}
+				if(!$error) {
+					foreach($this->_tokens as $second) {
+						if($second['id'] == $token['parent']) {
+							array_push($parents, $second);
+						}
 					}
 				}
 			}
@@ -273,10 +283,6 @@ class Lexer
 			return $parents[0];
 		}
 		return $parents;
-	}
-
-	public static function parentSearch($key)
-	{
 	}
 
 	/**
