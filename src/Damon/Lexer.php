@@ -287,7 +287,7 @@ class Lexer
 
 	/**
 	 * Get all children of an element
-	 * @var string Tag
+	 * @var string $tag Tag
 	 * @return array Array of all children
 	 * INCOMPLETE
 	 */
@@ -323,5 +323,31 @@ class Lexer
 			return $children[0];
 		}
 		return $children;
+	}
+
+	/**
+	 * Get the element by tag and attributes
+	 * @var string 	$tag 		Tag
+	 * @var array 	$attributes Attributes of element
+	 */
+	public function getElement($tag, $attributes = null)
+	{
+		foreach($this->_tokens as $token) {
+			$error = false;
+			
+			if($token['tag'] == $tag) {
+				if(!is_null($attributes)) {
+					foreach($attributes as $attribute => $value) {
+						if($token['attributes'][$attribute] != $value) {
+							$error = true;
+						}
+					}
+				}
+
+				if(!$error) {
+					return $token;
+				}
+			}
+		}
 	}
 } 
