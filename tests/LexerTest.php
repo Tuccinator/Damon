@@ -87,6 +87,21 @@ class LexerTest extends PHPUnit_Framework_TestCase
 
 		$this->assertEquals($lexer->getElement('p', ['id' => 'paragraph1'])['tag'], 'p');
 	}
+
+	public function testGetInnerText()
+	{
+		$lexer = new \Damon\Lexer();
+		$elements = '
+			<div id="firstParent">
+				<p id="paragraph1">Hi</p>
+			</div>
+			<div id="secondParent">
+				<p id="paragraph2">Bye</p>
+			</div>';
+		$lexer->parse($elements);
+
+		$this->assertEquals($lexer->getInnerText('p', ['id' => 'paragraph2']), 'Bye');
+	}
 }
 
 ?>

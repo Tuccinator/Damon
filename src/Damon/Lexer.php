@@ -114,11 +114,16 @@ class Lexer
 				array_shift($elementExploded);
 				$attributeString = implode('=', $elementExploded);
 				$attributes = $this->_getAttributes($attributeString);
-
+				if(isset($tag[1])) {
+					$value = $tag[1];
+				} else {
+					$value = '';
+				}
 				$elements[] = [
 					'id' => uniqid(),
 					'tag' => $element,
-					'attributes' => $attributes
+					'attributes' => $attributes,
+					'value' => $value
 				];
 			}
 		}
@@ -240,7 +245,12 @@ class Lexer
 	 * Retrieve the inner text in between tags
 	 * INCOMPLETE
 	 */
-	public function getInnerText(){}
+	public function getInnerText($tag, $attributes = null)
+	{
+		$element = $this->getElement($tag, $attributes);
+
+		return $element['value'];
+	}
 
 	/**
 	 * Set the new inner text for a certain tag. Must compile tokens to see any changes
