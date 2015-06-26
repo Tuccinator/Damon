@@ -101,10 +101,16 @@ class Lexer
 		foreach($tags as $tag)
 		{
 			$tagValue = $tag[0];
+			if(isset($tag[1])) {
+				$value = $tag[1];
+			} else {
+				$value = '';
+			}
 			if(!strstr($tagValue, ' ')) {
 				$elements[] = [
 					'id' => uniqid(),
-					'tag' => $tagValue
+					'tag' => $tagValue,
+					'value' => $value
 				];
 				continue;
 			}
@@ -114,11 +120,6 @@ class Lexer
 				array_shift($elementExploded);
 				$attributeString = implode('=', $elementExploded);
 				$attributes = $this->_getAttributes($attributeString);
-				if(isset($tag[1])) {
-					$value = $tag[1];
-				} else {
-					$value = '';
-				}
 				$elements[] = [
 					'id' => uniqid(),
 					'tag' => $element,
@@ -311,8 +312,10 @@ class Lexer
 			if($token['tag'] == $tag) {
 				if(!is_null($attributes)) {
 					foreach($attributes as $attribute => $value) {
-						if($token['attributes'][$attribute] != $value) {
-							$error = true;
+						if(isset($token['attributes'][$attribute])) {
+							if($token['attributes'][$attribute] == $value) {
+								$error = true;
+							}
 						}
 					}
 				}
@@ -343,13 +346,15 @@ class Lexer
 	public function getElement($tag, $attributes = null)
 	{
 		foreach($this->_tokens as $token) {
-			$error = false;
+			$error = true;
 			
 			if($token['tag'] == $tag) {
 				if(!is_null($attributes)) {
 					foreach($attributes as $attribute => $value) {
-						if($token['attributes'][$attribute] != $value) {
-							$error = true;
+						if(isset($token['attributes'][$attribute])) {
+							if($token['attributes'][$attribute] == $value) {
+								$error = false;
+							}
 						}
 					}
 				}
@@ -359,5 +364,23 @@ class Lexer
 				}
 			}
 		}
+	}
+
+	public function getElementsByTagName($tag)
+	{
+		$elements = [];
+
+		foreach($this->_tokens as $token) {
+			$error = true;
+			
+			if($token['tag'] == $tag) {
+
+				if($error) {
+					array_push($elements, $token);
+				}
+			}
+		}
+
+		return $elements;
 	}
 } 
